@@ -3,12 +3,12 @@
   <script src='../../dist/print.umd.cjs'></script>
   <script type="text/javascript">
     function printPdf() {
-      printJS('/test/manual/test.pdf')
+      printJS('test.pdf')
     }
 
     function printPdfKioskPrint() {
       printJS({
-        printable: '/test/manual/test.pdf',
+        printable: 'test.pdf',
         type: 'pdf',
         frameRemoveDelay: 1000,
       })
@@ -16,7 +16,7 @@
 
     function printPdfWithModal() {
       printJS({
-        printable: '/test/manual/test.pdf',
+        printable: 'test.pdf',
         type: 'pdf',
         showModal: true,
 				base64: false,
@@ -25,7 +25,7 @@
 
     function printPdfWithModalAndCloseCallback() {
       printJS({
-        printable: '/test/manual/test.pdf',
+        printable: 'test.pdf',
         type: 'pdf',
         showModal: true,
         onPrintDialogClose: () => alert('The print dialog was closed'),
@@ -34,7 +34,7 @@
     }
 
     function printPdfBase64() {
-      fetch('/test/manual/base64.txt').then(function(response) {
+      fetch('base64.txt').then(function(response) {
         response.text().then(function(base64) {
           printJS({
             printable: base64,

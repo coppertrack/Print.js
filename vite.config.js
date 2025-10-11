@@ -10,6 +10,12 @@ export default defineConfig({
       rollupTypes: true
     })
   ],
+  root: './',
+  publicDir: resolve(__dirname, 'test/manual'),
+  server: {
+    port: 3000,
+    open: '/test/manual/index.html'
+  },
   build: {
     lib: {
       entry: resolve(__dirname, 'src/index.ts'),
