@@ -1,6 +1,7 @@
 import type { PrintParams } from "../types"
 import Print from './print'
 import { cleanUp } from './functions'
+import { isValidUrl } from './security'
 
 export default {
   print: (params: PrintParams, printFrame: HTMLIFrameElement) => {
@@ -18,7 +19,15 @@ export default {
 
     // Format pdf url
     const printableStr = params.printable as string
-    params.printable = /^(blob|http|\/\/)/i.test(printableStr)
+
+    // Validate URL before using it
+    if (!isValidUrl(printableStr)) {
+      cleanUp(params)
+      params.onError(new Error('Invalid or unsafe URL provided for printable PDF'))
+      return
+    }
+
+    params.printable = /^(blob:|https?:)/i.test(printableStr)
       ? printableStr
       : window.location.origin + (printableStr.charAt(0) !== '/' ? '/' + printableStr : printableStr)
 

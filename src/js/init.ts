@@ -7,6 +7,7 @@ import Html from './html'
 import RawHtml from './raw-html'
 import Image from './image'
 import Json from './json'
+import { isSafeUrlForWindow, isValidCssPath } from './security'
 import type { PrintParams } from '../types'
 
 const printTypes = ['pdf', 'html', 'image', 'json', 'raw-html'] as const
@@ -128,9 +129,13 @@ export default {
         // Add support for single file
         const cssFiles = Array.isArray(params.css) ? params.css : [params.css]
 
-        // Create link tags for each css file
+        // Create link tags for each css file (with validation)
         cssFiles.forEach(file => {
-          printFrame.srcdoc += '<link rel="stylesheet" href="' + file + '">'
+          if (isValidCssPath(file)) {
+            printFrame.srcdoc += '<link rel="stylesheet" href="' + file + '">'
+          } else {
+            console.warn('Print.js: Skipping invalid CSS path:', file)
+          }
         })
       }
 
@@ -144,8 +149,15 @@ export default {
         if (Browser.isIE()) {
           try {
             console.info('Print.js doesn\'t support PDF printing in Internet Explorer.')
-            const win = window.open(params.fallbackPrintable || '', '_blank')
-            if (win) win.focus()
+
+            // Validate URL before opening
+            if (params.fallbackPrintable && isSafeUrlForWindow(params.fallbackPrintable)) {
+              const win = window.open(params.fallbackPrintable, '_blank')
+              if (win) win.focus()
+            } else if (params.fallbackPrintable) {
+              throw new Error('Invalid or unsafe URL provided for fallbackPrintable')
+            }
+
             const onIncompatible = params.onIncompatibleBrowser
             if (onIncompatible) onIncompatible()
           } catch (error) {
