@@ -1,3 +1,5 @@
+@use '../modules/colors';
+
 .printSpinner {
   margin-top: 3px;
   margin-left: -40px;
@@ -5,7 +7,7 @@
   display: inline-block;
   width: 25px;
   height: 25px;
-	border: 2px solid $primary;
+	border: 2px solid colors.$primary;
   border-radius: 50%;
   animation: spin 0.75s infinite linear;
 }
@@ -25,7 +27,7 @@
 .printSpinner, .printSpinner::before, .printSpinner::after {
   display: inline-block;
   border-color: transparent;
-  border-top-color: $primary;
+  border-top-color: colors.$primary;
   animation-duration: 1.2s;
 }
 .printSpinner::before {

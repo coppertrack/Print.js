@@ -1,3 +1,5 @@
+@use '../modules/colors';
+
 .printModal {
   font-family:sans-serif;
   display:flex;
@@ -7,10 +9,10 @@
   left:0;
   top:0;
   position:absolute;
-  color: $primary;
+  color: colors.$primary;
   width: 100%;
   height: 100%;
-  background-color: $bg-color;
+  background-color: colors.$bg-color;
 }
 
 /*
