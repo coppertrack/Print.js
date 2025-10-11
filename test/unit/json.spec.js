@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest'
 import Json from '../../src/js/json'
 
 describe('Json', () => {

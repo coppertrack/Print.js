@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest'
 import Modal from '../../src/js/modal'
 
 describe('Modal', () => {

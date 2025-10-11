@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest'
 import { addWrapper, capitalizePrint, isRawHTML } from '../../src/js/functions'
 
 describe('addWrapper()', () => {

@@ -59,15 +59,15 @@ function performPrint (iframeElement, params) {
       try {
         iframeElement.contentWindow.document.execCommand('print', false, null)
       } catch (e) {
-        setTimeout(function(){
+        setTimeout(function () {
           iframeElement.contentWindow.print()
-        },1000)
+        }, 1000)
       }
     } else {
       // Other browsers
-      setTimeout(function(){
+      setTimeout(function () {
         iframeElement.contentWindow.print()
-      },1000)
+      }, 1000)
     }
   } catch (error) {
     params.onError(error)
@@ -87,6 +87,7 @@ function loadIframeImages (images) {
     if (image.src && image.src !== window.location.href) {
       return loadIframeImage(image)
     }
+    return Promise.resolve()
   })
 
   return Promise.all(promises)

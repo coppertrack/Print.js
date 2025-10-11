@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest'
 import Init from '../../src/js/init'
 
 describe('Init Module', () => {
