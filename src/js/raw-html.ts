@@ -1,3 +1,4 @@
+import type { PrintParams } from "../types"
 import Print from './print'
 import { addHeader, addFooter } from './functions'
 

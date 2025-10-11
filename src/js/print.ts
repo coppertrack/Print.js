@@ -1,19 +1,20 @@
+import type { PrintParams } from "../types"
 import Browser from './browser'
 import { cleanUp } from './functions'
 
 const Print = {
-  send: (params, printFrame) => {
+  send: (params: PrintParams, printFrame: HTMLIFrameElement) => {
     // Append iframe element to document body
     document.getElementsByTagName('body')[0].appendChild(printFrame)
 
     // Get iframe element
-    const iframeElement = document.getElementById(params.frameId)
+    const iframeElement = document.getElementById(params.frameId) as HTMLIFrameElement
 
     // Wait for iframe to load all content
     iframeElement.onload = () => {
       if (params.type === 'pdf') {
         // Add a delay for Firefox. In my tests, 1000ms was sufficient but 100ms was not
-        if (Browser.isFirefox() && Browser.getFirefoxMajorVersion() < 110) {
+        if (Browser.isFirefox() && Browser.getFirefoxMajorVersion(navigator.userAgent) < 110) {
           setTimeout(() => performPrint(iframeElement, params), 1000)
         } else {
           performPrint(iframeElement, params)
@@ -22,14 +23,14 @@ const Print = {
       }
 
       // Get iframe element document
-      let printDocument = (iframeElement.contentWindow || iframeElement.contentDocument)
+      let printDocument = ((iframeElement as HTMLIFrameElement).contentWindow || (iframeElement as any).contentDocument)
       if (printDocument.document) printDocument = printDocument.document
 
       // Append printable element to the iframe body
       printDocument.body.appendChild(params.printableElement)
 
       // Add custom style
-      if (params.type !== 'pdf' && params.style) {
+      if (params.style) {
         // Create style element
         const style = document.createElement('style')
         style.innerHTML = params.style
@@ -50,7 +51,7 @@ const Print = {
   }
 }
 
-function performPrint (iframeElement, params) {
+function performPrint (iframeElement: HTMLIFrameElement, params: PrintParams) {
   try {
     iframeElement.focus()
 
@@ -70,9 +71,9 @@ function performPrint (iframeElement, params) {
       }, 1000)
     }
   } catch (error) {
-    params.onError(error)
+    params.onError(error as Error)
   } finally {
-    if (Browser.isFirefox() && Browser.getFirefoxMajorVersion() < 110) {
+    if (Browser.isFirefox() && Browser.getFirefoxMajorVersion(navigator.userAgent) < 110) {
       // Move the iframe element off-screen and make it invisible
       iframeElement.style.visibility = 'hidden'
       iframeElement.style.left = '-1px'
@@ -82,7 +83,7 @@ function performPrint (iframeElement, params) {
   }
 }
 
-function loadIframeImages (images) {
+function loadIframeImages (images: HTMLImageElement[]) {
   const promises = images.map(image => {
     if (image.src && image.src !== window.location.href) {
       return loadIframeImage(image)
@@ -93,8 +94,8 @@ function loadIframeImages (images) {
   return Promise.all(promises)
 }
 
-function loadIframeImage (image) {
-  return new Promise(resolve => {
+function loadIframeImage (image: HTMLImageElement) {
+  return new Promise<void>(resolve => {
     const pollImage = () => {
       !image || typeof image.naturalWidth === 'undefined' || image.naturalWidth === 0 || !image.complete
         ? setTimeout(pollImage, 500)

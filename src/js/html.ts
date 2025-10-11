@@ -1,10 +1,11 @@
+import type { PrintParams } from "../types"
 import { collectStyles, addHeader, addFooter } from './functions'
 import Print from './print'
 
 export default {
-  print: (params, printFrame) => {
+  print: (params: PrintParams, printFrame: HTMLIFrameElement) => {
     // Get the DOM printable element
-    const printElement = isHtmlElement(params.printable) ? params.printable : document.getElementById(params.printable)
+    const printElement = isHtmlElement(params.printable) ? params.printable : document.getElementById(params.printable as string)
 
     // Check if the element exists
     if (!printElement) {

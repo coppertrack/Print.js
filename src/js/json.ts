@@ -1,3 +1,4 @@
+import type { PrintParams } from "../types"
 import { capitalizePrint, addHeader, addFooter } from './functions'
 import Print from './print'
 

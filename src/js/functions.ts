@@ -1,3 +1,4 @@
+import type { PrintParams } from "../types"
 import Modal from './modal'
 import Browser from './browser'
 

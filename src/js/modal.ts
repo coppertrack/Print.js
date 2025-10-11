@@ -1,3 +1,4 @@
+import type { PrintParams } from "../types"
 const Modal = {
   show (params) {
     // Build modal

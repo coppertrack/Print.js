@@ -1,3 +1,4 @@
+import type { PrintParams } from "../types"
 const Browser = {
   // Firefox 1.0+
   isFirefox: () => {

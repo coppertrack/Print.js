@@ -7,12 +7,13 @@ import Html from './html'
 import RawHtml from './raw-html'
 import Image from './image'
 import Json from './json'
+import type { PrintParams } from '../types'
 
-const printTypes = ['pdf', 'html', 'image', 'json', 'raw-html']
+const printTypes = ['pdf', 'html', 'image', 'json', 'raw-html'] as const
 
 export default {
-  init () {
-    const params = {
+  init (args?: string | Partial<PrintParams>, type?: string) {
+    const params: PrintParams = {
       printable: null,
       fallbackPrintable: null,
       type: 'pdf',
@@ -25,7 +26,7 @@ export default {
       gridHeaderStyle: 'font-weight: bold; padding: 5px; border: 1px solid #dddddd;',
       gridStyle: 'border: 1px solid lightgray; margin-bottom: -1px;',
       showModal: false,
-      onError: (error) => { throw error },
+      onError: (error: Error) => { throw error },
       onLoadingStart: null,
       onLoadingEnd: null,
       onPrintDialogClose: () => {},
@@ -54,7 +55,6 @@ export default {
     }
 
     // Check if a printable document or object was supplied
-    const args = arguments[0]
     if (args === undefined) {
       throw new Error('printJS expects at least 1 attribute.')
     }
@@ -64,17 +64,21 @@ export default {
       case 'string':
         params.printable = encodeURI(args)
         params.fallbackPrintable = params.printable
-        params.type = arguments[1] || params.type
+        params.type = (type as PrintParams['type']) || params.type
         break
       case 'object':
-        params.printable = args.printable
-        params.fallbackPrintable = typeof args.fallbackPrintable !== 'undefined' ? args.fallbackPrintable : params.printable
+        params.printable = (args.printable as string | HTMLElement) || null
+        params.fallbackPrintable = typeof args.fallbackPrintable !== 'undefined' ? args.fallbackPrintable : (params.printable as string)
         params.fallbackPrintable = params.base64 ? `data:application/pdf;base64,${params.fallbackPrintable}` : params.fallbackPrintable
-        for (const k in params) {
-          if (k === 'printable' || k === 'fallbackPrintable') continue
 
-          params[k] = typeof args[k] !== 'undefined' ? args[k] : params[k]
-        }
+        Object.keys(params).forEach((k) => {
+          if (k === 'printable' || k === 'fallbackPrintable') return
+
+          const key = k as keyof PrintParams
+          if (typeof args[key] !== 'undefined') {
+            (params as any)[key] = args[key]
+          }
+        })
         break
       default:
         throw new Error('Unexpected argument type! Expected "string" or "object", got ' + typeof args)
@@ -84,7 +88,7 @@ export default {
     if (!params.printable) throw new Error('Missing printable information.')
 
     // Validate type
-    if (!params.type || typeof params.type !== 'string' || printTypes.indexOf(params.type.toLowerCase()) === -1) {
+    if (!params.type || typeof params.type !== 'string' || printTypes.indexOf(params.type.toLowerCase() as any) === -1) {
       throw new Error('Invalid print type. Available types are: pdf, html, image and json.')
     }
 
@@ -97,7 +101,7 @@ export default {
     // To prevent duplication and issues, remove any used printFrame from the DOM
     const usedFrame = document.getElementById(params.frameId)
 
-    if (usedFrame) usedFrame.parentNode.removeChild(usedFrame)
+    if (usedFrame && usedFrame.parentNode) usedFrame.parentNode.removeChild(usedFrame)
 
     // Create a new iframe for the print job
     const printFrame = document.createElement('iframe')
@@ -122,10 +126,10 @@ export default {
       // Attach css files
       if (params.css) {
         // Add support for single file
-        if (!Array.isArray(params.css)) params.css = [params.css]
+        const cssFiles = Array.isArray(params.css) ? params.css : [params.css]
 
         // Create link tags for each css file
-        params.css.forEach(file => {
+        cssFiles.forEach(file => {
           printFrame.srcdoc += '<link rel="stylesheet" href="' + file + '">'
         })
       }
@@ -140,11 +144,12 @@ export default {
         if (Browser.isIE()) {
           try {
             console.info('Print.js doesn\'t support PDF printing in Internet Explorer.')
-            const win = window.open(params.fallbackPrintable, '_blank')
-            win.focus()
-            params.onIncompatibleBrowser()
+            const win = window.open(params.fallbackPrintable || '', '_blank')
+            if (win) win.focus()
+            const onIncompatible = params.onIncompatibleBrowser
+            if (onIncompatible) onIncompatible()
           } catch (error) {
-            params.onError(error)
+            params.onError(error as Error)
           } finally {
             // Make sure there is no loading modal opened
             if (params.showModal) Modal.close()
