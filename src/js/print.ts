@@ -13,9 +13,9 @@ const Print = {
     // Wait for iframe to load all content
     iframeElement.onload = () => {
       if (params.type === 'pdf') {
-        // Add a delay for Firefox. In my tests, 1000ms was sufficient but 100ms was not
-        if (Browser.isFirefox() && Browser.getFirefoxMajorVersion(navigator.userAgent) < 110) {
-          setTimeout(() => performPrint(iframeElement, params), 1000)
+        // Add a delay for Firefox and Safari to allow contentWindow to be ready
+        if ((Browser.isFirefox() && Browser.getFirefoxMajorVersion(navigator.userAgent) < 110) || Browser.isSafari()) {
+          setTimeout(() => performPrint(iframeElement, params), 500)
         } else {
           performPrint(iframeElement, params)
         }
@@ -55,25 +55,33 @@ function performPrint (iframeElement: HTMLIFrameElement, params: PrintParams) {
   try {
     iframeElement.focus()
 
+    if (!iframeElement.contentWindow) {
+      throw new Error('iframe contentWindow is not accessible')
+    }
+
     // If Edge or IE, try catch with execCommand
     if (Browser.isEdge() || Browser.isIE()) {
       try {
         iframeElement.contentWindow.document.execCommand('print', false, null)
       } catch (e) {
         setTimeout(function () {
-          iframeElement.contentWindow.print()
+          if (iframeElement.contentWindow) {
+            iframeElement.contentWindow.print()
+          }
         }, 1000)
       }
     } else {
       // Other browsers
       setTimeout(function () {
-        iframeElement.contentWindow.print()
+        if (iframeElement.contentWindow) {
+          iframeElement.contentWindow.print()
+        }
       }, 1000)
     }
   } catch (error) {
     params.onError(error as Error)
   } finally {
-    if (Browser.isFirefox() && Browser.getFirefoxMajorVersion(navigator.userAgent) < 110) {
+    if ((Browser.isFirefox() && Browser.getFirefoxMajorVersion(navigator.userAgent) < 110) || Browser.isSafari()) {
       // Move the iframe element off-screen and make it invisible
       iframeElement.style.visibility = 'hidden'
       iframeElement.style.left = '-1px'
