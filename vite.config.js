@@ -20,8 +20,12 @@ export default defineConfig({
     lib: {
       entry: resolve(__dirname, 'src/index.ts'),
       name: 'printJS',
-      fileName: 'print',
-      formats: ['umd']
+      fileName: (format) => {
+        if (format === 'es') return 'print.js'
+        if (format === 'umd') return 'print.umd.cjs'
+        return `print.${format}.js`
+      },
+      formats: ['es', 'umd']
     },
     outDir: 'dist',
     sourcemap: true,

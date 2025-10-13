@@ -5,7 +5,16 @@
   "version": "1.6.0",
   "type": "module",
   "main": "dist/print.umd.cjs",
+  "module": "dist/print.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/print.js",
+      "require": "./dist/print.umd.cjs"
+    },
+    "./dist/print.css": "./dist/print.css"
+  },
   "repository": "https://github.com/crabbly/Print.js",
   "license": "MIT",
   "devDependencies": {
