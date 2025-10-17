@@ -46,7 +46,7 @@
   "author": "Rodrigo Vieira <rodrigo@crabbly.com>",
   "standard": {
     "ignore": [
-      "/dist/print.js",
+      "/dist/**",
       "/test/**/*.spec.js"
     ],
     "env": {
